@@ -1,5 +1,3 @@
-package code;
-
 
 
 public class Car extends Enemy{
