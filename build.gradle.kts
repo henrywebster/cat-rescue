@@ -4,6 +4,7 @@ val version = "1.0.0"
 plugins {
     java
     id("org.openjfx.javafxplugin") version "0.0.7"
+    id("org.beryx.jlink") version "2.6.6"
 //    id("com.github.johnrengelman.shadow") version "5.0.0"
     application
 }
@@ -30,6 +31,14 @@ dependencies {
 repositories {
     jcenter()
     mavenCentral()
+}
+
+jlink {
+    addOptions("--compress", "2", "--no-header-files", "--no-man-pages")
+     // TODO make variable
+    launcher {
+        name = "catrescue"
+    }
 }
 
 tasks.register<Jar>("fatJar") {
