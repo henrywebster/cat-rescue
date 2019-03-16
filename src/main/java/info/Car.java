@@ -1,5 +1,4 @@
-
-
+package info;
 
 public class Car extends Enemy{
 	int direction = 1;
@@ -43,7 +42,7 @@ public class Car extends Enemy{
 		case 3:
 			//down
 			if(game.movement(this,x,y+1))
-				y++;
+			    y++;
 			else
 				direction = 1;
 			break;
