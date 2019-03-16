@@ -93,8 +93,9 @@ public class Map {
 		//reads a 24-bit bitmap file and creates a JavaFX representation to be added to the scene
 		ObservableList<Node> sceneGraph = game.root.getChildren();
 
-        URL url = ClassLoader.getSystemClassLoader().getResource("images" + File.separator + "map.bmp");
-		try{
+        URL url = getClass().getClassLoader().getResource("map.bmp");
+		//URL url = Map.class.getResource("images" + File.separator + "map.bmp");
+        try{
 			BufferedImage img = ImageIO.read(url);
 			dimensionY = img.getHeight();
 			dimensionX = img.getWidth();

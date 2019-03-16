@@ -1,7 +1,10 @@
 
+val version = "1.0.0"
+
 plugins {
     java
     id("org.openjfx.javafxplugin") version "0.0.7"
+//    id("com.github.johnrengelman.shadow") version "5.0.0"
     application
 }
 
@@ -20,9 +23,6 @@ application {
 }
 
 dependencies {
-
-    //compile("org.openjfx:javafx-base:11")
-    //compile("org.openjfx:javafx-graphics:11")
 //    testCompile("junit:junit:4.12")
 }
 
@@ -30,4 +30,18 @@ dependencies {
 repositories {
     jcenter()
     mavenCentral()
+}
+
+tasks.register<Jar>("fatJar") {
+    manifest.attributes(mapOf("Implementation-Title" to "Cat Rescue",
+                    "Implementation-Version" to "1.0.0",
+                    "Main-Class" to "info.Explorer"))
+ 
+    from(configurations.compile.map {configuration ->
+        configuration.asFileTree.fold(files().asFileTree) {collection, file ->
+            if (file.isDirectory) collection else collection.plus(zipTree(file))
+        }
+    })
+ 
+    baseName = project.name + "-all"
 }

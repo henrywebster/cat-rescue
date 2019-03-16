@@ -22,7 +22,7 @@ public class Cat extends NonPlayer implements Observer{
 		this.x = x;
 		this.y = y;
 		state = "walking";
-		image = new Image(getClass().getResourceAsStream(".." + File.separator + "images" + File.separator + "cat_" + type + ".png"),scale,scale,false,false);
+		image = new Image(getClass().getClassLoader().getResourceAsStream("cat_" + type + ".png"),scale,scale,false,false);
 	
 	}
 	

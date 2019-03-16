@@ -16,7 +16,7 @@ public abstract class Enemy extends NonPlayer{
 		this.x = x;
 		this.y = y;
 		state = "walking";
-		image = new Image(getClass().getResourceAsStream(".." + File.separator + "images" + File.separator + type + ".png"),scale,scale,false,false);
+		image = new Image(getClass().getClassLoader().getResourceAsStream(type + ".png"),scale,scale,false,false);
 	}
 	
 	public void setHit(){

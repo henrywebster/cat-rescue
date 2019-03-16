@@ -34,7 +34,7 @@ public class Player extends Observable implements Entity{
 		this.y = y;
 		this.scale = game.getScale();
 		this.state = "walking";
-		this.image = new Image(getClass().getResourceAsStream(".." + File.separator + "images" + File.separator + "player.png"),scale,scale,false,false);
+		this.image = new Image(getClass().getClassLoader().getResourceAsStream("player.png"),scale,scale,false,false);
 		setChanged();
 	}
 	
