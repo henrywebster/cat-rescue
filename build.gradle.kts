@@ -40,17 +40,3 @@ jlink {
         name = "catrescue"
     }
 }
-
-tasks.register<Jar>("fatJar") {
-    manifest.attributes(mapOf("Implementation-Title" to "Cat Rescue",
-                    "Implementation-Version" to "1.0.0",
-                    "Main-Class" to "info.Explorer"))
- 
-    from(configurations.compile.map {configuration ->
-        configuration.asFileTree.fold(files().asFileTree) {collection, file ->
-            if (file.isDirectory) collection else collection.plus(zipTree(file))
-        }
-    })
- 
-    baseName = project.name + "-all"
-}
