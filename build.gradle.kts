@@ -14,14 +14,16 @@ java {
     targetCompatibility = JavaVersion.VERSION_11
 }
 
+
+
 javafx {
     modules = listOf("javafx.graphics", "javafx.controls", "javafx.swing")
     version = "11.0.1"
 }
 
 application {
-    mainClassName = "info.Explorer"
-    applicationDefaultJvmArgs = listOf("-XX:+FlightRecorder", "-XX:StartFlightRecording=filename=myrecording.jfr", "-Xlint:deprecation")
+    mainClassName = "info.hwebs.game.Game"
+//    applicationDefaultJvmArgs = listOf("-XX:+FlightRecorder", "-XX:StartFlightRecording=filename=myrecording.jfr")
 }
 
 dependencies {
@@ -49,4 +51,9 @@ tasks.withType<Test> {
     testLogging {
         events("passed", "skipped", "failed")
     }
+}
+
+tasks.withType<JavaCompile> {
+//    dependsOn("googleJavaFormat")
+    options.compilerArgs.addAll(arrayOf("-parameters", "-Xlint:all", "-Xdoclint:none"))
 }

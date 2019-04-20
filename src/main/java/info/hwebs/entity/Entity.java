@@ -36,9 +36,7 @@ public abstract class Entity {
         return location.getY();
     }
 
-    Entity() {
-        location = new Point2D.Float(0.0f, 0.0f);
-    }
+    private Entity() {}
 
     Entity(float x, float y) {
         location = new Point2D.Float(x, y);
