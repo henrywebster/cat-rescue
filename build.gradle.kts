@@ -1,11 +1,11 @@
 
 val version = "1.0.0"
+val junitVersion = "5.4.2"
 
 plugins {
     java
     id("org.openjfx.javafxplugin") version "0.0.7"
-    id("org.beryx.jlink") version "2.6.6"
-//    id("com.github.johnrengelman.shadow") version "5.0.0"
+//    id("org.beryx.jlink") version "2.6.6"
     application
 }
 
@@ -21,10 +21,14 @@ javafx {
 
 application {
     mainClassName = "info.Explorer"
+    applicationDefaultJvmArgs = listOf("-XX:+FlightRecorder", "-XX:StartFlightRecording=filename=myrecording.jfr", "-Xlint:deprecation")
 }
 
 dependencies {
-//    testCompile("junit:junit:4.12")
+    testCompile("org.junit.jupiter:junit-jupiter-api:$junitVersion")
+    testCompile("org.junit.jupiter:junit-jupiter-params:$junitVersion")
+    testRuntime("org.junit.jupiter:junit-jupiter-engine:$junitVersion")
+//    runtime("org.glassfish.jaxb:jaxb-runtime:2.3.0", "javax.activation:activation:1.1.1")
 }
 
 // In this section you declare where to find the dependencies of your project
@@ -33,10 +37,14 @@ repositories {
     mavenCentral()
 }
 
-jlink {
-    addOptions("--compress", "2", "--no-header-files", "--no-man-pages")
+//jlink {
+ //   addOptions("--compress", "2", "--no-header-files", "--no-man-pages")
      // TODO make variable
-    launcher {
-        name = "catrescue"
-    }
-}
+//    launcher {
+//        name = "catrescue"
+//    }
+//}
+
+//tasks.withType<Test> {
+//    useJUnitPlatform()
+//}
