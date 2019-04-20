@@ -2,6 +2,13 @@ package info.hwebs.ui;
 
 import java.lang.Math;
 import java.util.logging.Logger;
+import java.util.Properties;
+
+import java.lang.NullPointerException;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.BufferedInputStream;
 
 import javafx.scene.Scene;
 import javafx.stage.Stage;
@@ -11,10 +18,13 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.RowConstraints;
+import javafx.scene.layout.*;
 import javafx.scene.control.Label;
 import javafx.geometry.Rectangle2D;
 import javafx.stage.Screen;
-import javafx.stage.*;
+
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 
 public class Window {
 
@@ -27,6 +37,72 @@ public class Window {
     private final GridPane info;
     private final TilePane game;
 
+    private final Properties properties;
+
+    private Properties initProperties() {
+
+        final Properties properties = new Properties();
+
+        properties.setProperty("background.image.scale", "1.0");
+
+        try (InputStream input = Window.class.getResourceAsStream("/config.properties")) {
+            properties.load(input);
+            logger.info("Properties loaded.");
+        } catch (IOException | NullPointerException e) {
+            logger.warning("Could not load properties file. Using defaults.");
+        }
+        return properties;
+    }
+
+    private Background initBackground() {
+
+        Background bg = null;
+
+
+
+        try (BufferedInputStream input = new BufferedInputStream(Window.class.getResourceAsStream(properties.getProperty("background.image")))) {
+
+            logger.info(Boolean.toString(input.markSupported()));
+
+            input.mark(100_000_000);
+
+            
+
+            // TODO hack
+            final Image info = new Image(input);
+
+
+
+            input.reset();
+
+            final double scale = Double.parseDouble(properties.getProperty("background.image.scale"));
+            final double width = info.getWidth() * scale;
+            final double height = info.getHeight() * scale;
+
+
+
+            final Image tileImage = new Image(input, width, height, false, true);            
+
+            BackgroundImage bgImage = new BackgroundImage(tileImage, 
+                                                 BackgroundRepeat.REPEAT, BackgroundRepeat.REPEAT, BackgroundPosition.DEFAULT, BackgroundSize.DEFAULT);                         
+
+
+            bg = new Background(bgImage);
+
+        } catch (NumberFormatException ex) {
+            logger.warning("Invalid value in properties.");
+        } catch (IOException | NullPointerException ex) {
+            logger.warning("Could not load background image.");
+            logger.warning(ex.getMessage());
+        }
+
+        if (null == bg) {
+            BackgroundFill bgFill = new BackgroundFill(Color.BLUEVIOLET, null, null);
+            bg = new Background(bgFill);
+        }
+        return bg;
+    }
+
     public Window(final Stage stage, final String title) {
         assert(null != stage);
 
@@ -34,7 +110,18 @@ public class Window {
         game = new TilePane();        
         main = new GridPane();       
         root = new Pane(main);
-        
+
+        properties = initProperties();
+
+        root.setBackground(initBackground());
+
+
+
+
+
+
+
+       
         final Scene scene = new Scene(root, Color.BLUE); 
         stage.setScene(scene);
         Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
@@ -65,6 +152,13 @@ public class Window {
 
         main.add(info, 0, 0);
         main.add(game, 0, 1);
+
+
+        Image image = new Image(Window.class.getResourceAsStream("/grass.png"), 128, 128, false, true);
+        ImageView imageView = new ImageView(image);
+
+        game.getChildren().add(imageView);
+
 
         stage.setTitle(title);
         stage.show();
