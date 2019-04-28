@@ -23,6 +23,8 @@ import javafx.scene.control.Label;
 import javafx.geometry.Rectangle2D;
 import javafx.stage.Screen;
 
+import javafx.scene.Node;
+
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 
@@ -30,6 +32,7 @@ public class Window {
 
     private static final Logger logger = Logger.getGlobal();
 
+    // TODO move to properties
     private static final int COLUMNS = 13;
 
     private final Pane root;
@@ -38,6 +41,8 @@ public class Window {
     private final TilePane game;
 
     private final Properties properties;
+
+    private final WindowContext context;
 
     private Properties initProperties() {
 
@@ -58,20 +63,13 @@ public class Window {
 
         Background bg = null;
 
-
-
         try (BufferedInputStream input = new BufferedInputStream(Window.class.getResourceAsStream(properties.getProperty("background.image")))) {
 
             logger.info(Boolean.toString(input.markSupported()));
 
             input.mark(100_000_000);
-
-            
-
             // TODO hack
             final Image info = new Image(input);
-
-
 
             input.reset();
 
@@ -79,13 +77,10 @@ public class Window {
             final double width = info.getWidth() * scale;
             final double height = info.getHeight() * scale;
 
-
-
             final Image tileImage = new Image(input, width, height, false, true);            
 
             BackgroundImage bgImage = new BackgroundImage(tileImage, 
                                                  BackgroundRepeat.REPEAT, BackgroundRepeat.REPEAT, BackgroundPosition.DEFAULT, BackgroundSize.DEFAULT);                         
-
 
             bg = new Background(bgImage);
 
@@ -114,13 +109,6 @@ public class Window {
         properties = initProperties();
 
         root.setBackground(initBackground());
-
-
-
-
-
-
-
        
         final Scene scene = new Scene(root, Color.BLUE); 
         stage.setScene(scene);
@@ -138,10 +126,10 @@ public class Window {
         stage.setWidth(screenBounds.getWidth());    
         stage.setHeight(screenBounds.getHeight());
 
-        info.setStyle("-fx-background-color: yellow;");
-        game.setStyle("-fx-background-color: green;"); 
-        main.setStyle("-fx-background-color: magenta;");
-        
+        info.setBackground(new Background(new BackgroundFill(Color.YELLOW, null, null)));
+        game.setBackground(new Background(new BackgroundFill(Color.GREEN, null, null)));
+        main.setBackground(new Background(new BackgroundFill(Color.MAGENTA, null, null)));   
+
         main.setPrefSize(width, height);
         main.setLayoutX(startX);
         main.setLayoutY(startY);
@@ -153,14 +141,25 @@ public class Window {
         main.add(info, 0, 0);
         main.add(game, 0, 1);
 
-
-        Image image = new Image(Window.class.getResourceAsStream("/grass.png"), 128, 128, false, true);
-        ImageView imageView = new ImageView(image);
-
-        game.getChildren().add(imageView);
-
+        this.context = new WindowContext(targetSize, COLUMNS);
 
         stage.setTitle(title);
         stage.show();
     };
+
+    // This is very basic...
+    public void addToGameScene(Node node) {
+        assert(!game.getChildren().contains(node));
+        
+        game.getChildren().add(node);
+    }
+
+    public WindowContext getContext() {
+        return this.context;
+    }
+
+    public void addToInfoScene(Node node) {
+        assert(!game.getChildren().contains(node));
+        info.getChildren().add(node);
+    }
 }
