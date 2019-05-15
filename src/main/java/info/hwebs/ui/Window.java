@@ -25,8 +25,14 @@ import javafx.stage.Screen;
 
 import javafx.scene.Node;
 
+import javafx.scene.input.KeyEvent;
+import javafx.event.EventHandler;
+
+
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+
+import info.hwebs.resource.ResourceManager;
 
 public class Window {
 
@@ -38,7 +44,7 @@ public class Window {
     private final Pane root;
     private final GridPane main;
     private final GridPane info;
-    private final TilePane game;
+    private final Pane game;
 
     private final Properties properties;
 
@@ -46,6 +52,7 @@ public class Window {
 
     private Properties initProperties() {
 
+/*
         final Properties properties = new Properties();
 
         properties.setProperty("background.image.scale", "1.0");
@@ -57,41 +64,37 @@ public class Window {
             logger.warning("Could not load properties file. Using defaults.");
         }
         return properties;
+*/
+
+        // TODO put in startup code
+        ResourceManager.registerConfig("config", "/config.properties");
+        return ResourceManager.getConfig("config");
     }
 
     private Background initBackground() {
 
         Background bg = null;
-
-        try (BufferedInputStream input = new BufferedInputStream(Window.class.getResourceAsStream(properties.getProperty("background.image")))) {
-
-            logger.info(Boolean.toString(input.markSupported()));
-
-            input.mark(100_000_000);
-            // TODO hack
-            final Image info = new Image(input);
-
-            input.reset();
-
-            final double scale = Double.parseDouble(properties.getProperty("background.image.scale"));
-            final double width = info.getWidth() * scale;
-            final double height = info.getHeight() * scale;
-
-            final Image tileImage = new Image(input, width, height, false, true);            
-
-            BackgroundImage bgImage = new BackgroundImage(tileImage, 
-                                                 BackgroundRepeat.REPEAT, BackgroundRepeat.REPEAT, BackgroundPosition.DEFAULT, BackgroundSize.DEFAULT);                         
-
-            bg = new Background(bgImage);
-
+/*
         } catch (NumberFormatException ex) {
             logger.warning("Invalid value in properties.");
         } catch (IOException | NullPointerException ex) {
             logger.warning("Could not load background image.");
             logger.warning(ex.getMessage());
         }
+*/
 
-        if (null == bg) {
+        // TODO move to startup
+        ResourceManager.registerImage("background", properties.getProperty("background.image"));
+        final Image image = ResourceManager.getImage("background");
+ 
+        final double scale = Double.parseDouble(properties.getProperty("background.image.scale"));
+        final double width = image.getWidth() * scale;                                                    
+        final double height = image.getHeight() * scale;
+
+        BackgroundImage bgImage = new BackgroundImage(image, BackgroundRepeat.REPEAT, BackgroundRepeat.REPEAT, 
+                BackgroundPosition.DEFAULT, new BackgroundSize(width, height, false, false, false, false));
+
+            bg = new Background(bgImage);                                                                                                                                               if (null == bg) {
             BackgroundFill bgFill = new BackgroundFill(Color.BLUEVIOLET, null, null);
             bg = new Background(bgFill);
         }
@@ -102,7 +105,7 @@ public class Window {
         assert(null != stage);
 
         info = new GridPane();
-        game = new TilePane();        
+        game = new Pane();        
         main = new GridPane();       
         root = new Pane(main);
 
@@ -145,6 +148,10 @@ public class Window {
 
         stage.setTitle(title);
         stage.show();
+ 
+        root.requestFocus();
+ //       root.setOnKeyPressed(event -> logger.info("HELLO"));
+
     };
 
     // This is very basic...
@@ -152,6 +159,11 @@ public class Window {
         assert(!game.getChildren().contains(node));
         
         game.getChildren().add(node);
+    }
+
+    // TODO fix
+    public void addKeyEvent(EventHandler<? super KeyEvent> value) {
+        this.root.setOnKeyPressed(value);
     }
 
     public WindowContext getContext() {
