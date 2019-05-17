@@ -1,29 +1,48 @@
 package info.hwebs.model;
 
+import info.hwebs.media.Audio;
+import javafx.scene.Node;
+import javax.sound.sampled.Clip;
+
 public abstract class AbstractModel implements Model {
 
     private double x;
 
     private double y;
 
-    AbstractModel(double x, double y) {
+    private double scale;
+
+    private final Node node;
+
+    private final Clip clip;
+
+    private Direction orientation;
+
+    AbstractModel(double x, double y, Node node, Clip clip) {
         this.x = x;
         this.y = y;
+        this.scale = 1.0;
+        this.node = node;
+        this.clip = clip;
+        this.orientation = Direction.UP;
     }
 
-    AbstractModel() {
+    AbstractModel(Node node) {
         this.x = 0.0;
         this.y = 0.0;
+        this.scale = 1.0;
+        this.node = node;
+        this.clip = null;
     }
 
     @Override
     public double getX() {
-        return this.x;
+        return x;
     }
 
     @Override
     public double getY() {
-        return this.y;
+        return y;
     }
 
     @Override
@@ -35,4 +54,30 @@ public abstract class AbstractModel implements Model {
     public void setY(double y) {
         this.y = y;
     }
-} 
+
+    @Override
+    public double getScale() {
+        return scale;
+    }
+
+    @Override
+    public void update() {
+        this.node.relocate(
+                x * node.getLayoutBounds().getWidth(), y * node.getLayoutBounds().getWidth());
+    }
+
+    @Override
+    public void orient(Direction orientation) {
+        this.orientation = orientation;
+    }
+
+    @Override
+    public Direction getOrientation() {
+        return orientation;
+    }
+
+    @Override
+    public void emitSound() {
+        Audio.submit(clip);
+    }
+}

@@ -5,13 +5,12 @@ import java.util.Vector;
 
 public class EntityManager {
 
+    private static final List<Entity> active;
 
-    private final static List<Entity> active;
+    private static final List<Entity> reserve;
 
-    private final static List<Entity> reserve;
-
-    private final static int INIT_ACTV_CAPACITY = 20;
-    private final static int INIT_RESV_CAPACITY = 20;
+    private static final int INIT_ACTV_CAPACITY = 20;
+    private static final int INIT_RESV_CAPACITY = 20;
 
     static {
         active = new Vector<>(INIT_ACTV_CAPACITY);
@@ -23,5 +22,4 @@ public class EntityManager {
     public Entity createGuard() {
         return null;
     }
-
 }

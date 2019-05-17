@@ -10,5 +10,4 @@ class EntityTest {
     void ctor() {
         assertEquals(1, 1);
     }
-
 }

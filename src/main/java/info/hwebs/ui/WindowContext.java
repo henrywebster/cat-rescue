@@ -10,4 +10,3 @@ public class WindowContext {
         this.count = count;
     }
 }
-

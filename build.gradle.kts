@@ -6,6 +6,7 @@ plugins {
     java
     id("org.openjfx.javafxplugin") version "0.0.7"
     id("org.beryx.jlink") version "2.6.6"
+    id("com.github.sherter.google-java-format") version "0.8"
     application
 }
 
@@ -24,6 +25,10 @@ javafx {
 application {
     mainClassName = "info.hwebs.game.Game"
 //    applicationDefaultJvmArgs = listOf("-XX:+FlightRecorder", "-XX:StartFlightRecording=filename=myrecording.jfr")
+}
+
+googleJavaFormat {
+    options(mapOf("style" to "AOSP"))
 }
 
 dependencies {
@@ -54,6 +59,6 @@ tasks.withType<Test> {
 }
 
 tasks.withType<JavaCompile> {
-//    dependsOn("googleJavaFormat")
+    dependsOn("googleJavaFormat")
     options.compilerArgs.addAll(arrayOf("-parameters", "-Xlint:all", "-Xdoclint:none"))
 }
