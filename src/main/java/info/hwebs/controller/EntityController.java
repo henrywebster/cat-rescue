@@ -4,27 +4,17 @@ import info.hwebs.model.Direction;
 import info.hwebs.model.Model;
 import javafx.scene.shape.Rectangle;
 
-public final class TileController {
+final class EntityController extends AbstractController {
 
-    private final Model model;
-
-    // TODO: tmp
     private final Rectangle rec;
 
-    public TileController(Model model) {
-        this.model = model;
-        this.rec = new Rectangle(0.0, 0.0, 13.0, 13.0);
+    EntityController(Model model, double boundX, double boundY) {
+        super(model);
+        this.rec = new Rectangle(0.0, 0.0, boundX, boundY);
     }
 
-    public void orient(Direction dir) {
-        model.orient(dir);
-    }
-
+    @Override
     public void move() {
-        // TODO stupid double check
-
-        model.emitSound();
-
         final double xStart = model.getX();
         final double yStart = model.getY();
         double x = xStart;

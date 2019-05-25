@@ -16,7 +16,7 @@ public interface Model {
 
     public Direction getOrientation();
 
-    public void emitSound();
+    //    public void emitSound();
 
     public void update();
 }

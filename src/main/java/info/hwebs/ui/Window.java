@@ -5,8 +5,12 @@ import java.util.Properties;
 import java.util.logging.Logger;
 import javafx.event.EventHandler;
 import javafx.geometry.Rectangle2D;
+import javafx.scene.Camera;
+import javafx.scene.Group;
 import javafx.scene.Node;
+import javafx.scene.ParallelCamera;
 import javafx.scene.Scene;
+import javafx.scene.SubScene;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.*;
@@ -16,6 +20,10 @@ import javafx.scene.paint.Color;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 
+// TODO rename to something like Renderer
+
+import javafx.scene.shape.Rectangle;
+
 public class Window {
 
     private static final Logger logger = Logger.getGlobal();
@@ -24,29 +32,22 @@ public class Window {
     private static final int COLUMNS = 13;
 
     private final Pane root;
-    private final GridPane main;
+    private final Group main;
     private final GridPane info;
-    private final Pane game;
+    private final Group game;
+
+    // TODO figure out better variables
+
+    public final Camera gameCamera;
+
+    private final SubScene interfaceScene;
+    private final SubScene gameScene;
 
     private final Properties properties;
 
     private final WindowContext context;
 
     private Properties initProperties() {
-
-        /*
-                final Properties properties = new Properties();
-
-                properties.setProperty("background.image.scale", "1.0");
-
-                try (InputStream input = Window.class.getResourcesAsStream("/config.properties")) {
-                    properties.load(input);
-                    logger.info("Properties loaded.");
-                } catch (IOException | NullPointerException e) {
-                    logger.warning("Could not load properties file. Using defaults.");
-                }
-                return properties;
-        */
 
         // TODO put in startup code
         Resources.registerConfig("config", "/config.properties");
@@ -56,14 +57,6 @@ public class Window {
     private Background initBackground() {
 
         Background bg = null;
-        /*
-                } catch (NumberFormatException ex) {
-                    logger.warning("Invalid value in properties.");
-                } catch (IOException | NullPointerException ex) {
-                    logger.warning("Could not load background image.");
-                    logger.warning(ex.getMessage());
-                }
-        */
 
         // TODO move to startup
         Resources.registerImage("background", properties.getProperty("background.image"));
@@ -93,17 +86,30 @@ public class Window {
         assert (null != stage);
 
         info = new GridPane();
-        game = new Pane();
-        main = new GridPane();
-        root = new Pane(main);
+        game = new Group();
+        main = new Group();
+        root = new Pane();
+
+        Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
 
         properties = initProperties();
 
         root.setBackground(initBackground());
 
         final Scene scene = new Scene(root, Color.BLUE);
-        stage.setScene(scene);
-        Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
+
+        final double screenHeight = screenBounds.getHeight();
+        final double screenWidth = screenBounds.getWidth();
+
+        final Group interfaceGroup = new Group();
+
+        this.interfaceScene = new SubScene(info, screenWidth, screenHeight);
+
+        gameCamera = new ParallelCamera();
+
+        Camera cameraInterface = new ParallelCamera();
+
+        interfaceScene.setCamera(cameraInterface);
 
         double minDimension = Math.min(screenBounds.getHeight(), screenBounds.getWidth());
 
@@ -114,23 +120,29 @@ public class Window {
         double startX = (screenBounds.getWidth() - width) / 2;
         double startY = (screenBounds.getHeight() - height) / 2;
 
+        this.gameScene = new SubScene(game, width, width);
+        gameScene.setTranslateX(startX);
+        gameScene.setTranslateY(startY + targetSize);
+        gameScene.setCamera(gameCamera);
+        gameScene.setFill(Color.BLUE);
+
+        // TODO this will change
+        // TODO resuse CC object
+        info.getColumnConstraints().add(new ColumnConstraints(startX));
+        info.getColumnConstraints().add(new ColumnConstraints(width));
+        info.getColumnConstraints().add(new ColumnConstraints(startX));
+
+        stage.setScene(scene);
+
         stage.setWidth(screenBounds.getWidth());
         stage.setHeight(screenBounds.getHeight());
 
-        info.setBackground(new Background(new BackgroundFill(Color.YELLOW, null, null)));
-        game.setBackground(new Background(new BackgroundFill(Color.GREEN, null, null)));
-        main.setBackground(new Background(new BackgroundFill(Color.MAGENTA, null, null)));
-
-        main.setPrefSize(width, height);
-        main.setLayoutX(startX);
-        main.setLayoutY(startY);
-
         root.setPrefSize(stage.getWidth(), stage.getHeight());
-        info.setPrefSize(width, targetSize);
-        game.setPrefSize(width, width);
 
-        main.add(info, 0, 0);
-        main.add(game, 0, 1);
+        main.getChildren().add(interfaceScene);
+        main.getChildren().add(gameScene);
+
+        root.getChildren().add(main);
 
         this.context = new WindowContext(targetSize, COLUMNS);
 
@@ -138,8 +150,6 @@ public class Window {
         stage.show();
 
         root.requestFocus();
-        //       root.setOnKeyPressed(event -> logger.info("HELLO"));
-
     };
 
     // This is very basic...
@@ -159,7 +169,8 @@ public class Window {
     }
 
     public void addToInfoScene(Node node) {
-        assert (!game.getChildren().contains(node));
-        info.getChildren().add(node);
+        assert (!info.getChildren().contains(node));
+        // TODO, keep track of row #
+        info.add(node, 1, 0);
     }
 }
