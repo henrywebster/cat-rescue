@@ -2,7 +2,12 @@ package info.hwebs.game;
 
 import info.hwebs.controller.Controller;
 import info.hwebs.controller.Controllers;
-import info.hwebs.map.Map;
+import info.hwebs.event.EntityVisitor;
+import info.hwebs.event.TerrainVisitor;
+import info.hwebs.maps.GameMap;
+import info.hwebs.maps.MapTile;
+import info.hwebs.maps.Terrain;
+import info.hwebs.media.Audio;
 import info.hwebs.model.Direction;
 import info.hwebs.model.Model;
 import info.hwebs.model.Models;
@@ -11,18 +16,19 @@ import info.hwebs.ui.Window;
 import info.hwebs.ui.WindowContext;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 import javafx.application.Application;
 import javafx.scene.image.Image;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javax.sound.sampled.Clip;
-
-import info.hwebs.maps.GameMap;
-import java.util.List;
 
 public class Game extends Application {
 
@@ -62,40 +68,38 @@ public class Game extends Application {
         Resources.registerImage("sand", "/sand.png");
         Resources.registerImage("water", "/water.png");
 
-        int[] mapData = new Random().ints(1000, 0, 3).toArray();
+        List<Integer> mapData = new Random().ints(1000, 0, 3).boxed().collect(Collectors.toList());
 
         Collection<Controller> tileControllers = new ArrayList<>();
         List<Model> tileModels = new ArrayList<>();
+
+        List<MapTile> mapTiles = new ArrayList<>();
 
         final Image grassImage = Resources.getImage("grass");
         final Image sandImage = Resources.getImage("sand");
         final Image waterImage = Resources.getImage("water");
 
-        for (int i = 0; i < 30; ++i) {
-            for (int j = 0; j < 30; ++j) {
+        final Map<Terrain, Image> tileImages =
+                Map.of(
+                        Terrain.GRASS,
+                        grassImage,
+                        Terrain.SAND,
+                        sandImage,
+                        Terrain.WATER,
+                        waterImage);
 
-                // TODO: dangerous null!
-                Model tile;
-                if (mapData[i * 30 + j] == 0) {
-                    tile = Models.spriteModelOf(i, j, context.size, grassImage, window);
-                } else if (mapData[i * 30 + j] == 1) {
-                    tile = Models.spriteModelOf(i, j, context.size, sandImage, window);
-                } else {
-                    tile = Models.spriteModelOf(i, j, context.size, waterImage, window);
-                }
-                tileModels.add(tile);
-            }
-        }
-
-        GameMap map = new GameMap(30, 30, tileModels);
+        GameMap map = GameMap.load(30, 30, tileImages, mapData, window);
 
         final Image playerImage = Resources.getImage("heroine");
-        final Clip clip = Resources.getClip("key");
         Model player = Models.spriteModelOf(6, 6, context.size, playerImage, window);
-        Controller c = Controllers.entityControllerOf(player, 30.0, 30.0);
+        Controller c =
+                Controllers.entityControllerOf(player, map, Set.of(Terrain.SAND, Terrain.GRASS));
+
+        final Clip clip = Resources.getClip("key");
+        TerrainVisitor.addEvent(EntityVisitor.class, () -> Audio.submit(clip));
 
         Model cameraModel = Models.cameraModelOf(0, 0, context.size, window.gameCamera);
-        Controller cameraCon = Controllers.trackingControllerOf(cameraModel, player, 30.0, 30.0, 13.0);
+        Controller cameraCon = Controllers.trackingControllerOf(13.0, cameraModel, player, map);
 
         Text text = new Text("Cat Rescue!");
         text.setFont(new Font(60));

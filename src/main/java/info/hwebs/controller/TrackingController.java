@@ -1,15 +1,9 @@
 package info.hwebs.controller;
 
-import info.hwebs.model.Direction;
+import info.hwebs.maps.GameMap;
 import info.hwebs.model.Model;
-import java.util.logging.Logger;
-import javafx.scene.shape.Rectangle;
 
 final class TrackingController extends AbstractController {
-
-    private static final Logger logger = Logger.getGlobal();
-
-    private final Rectangle rec;
 
     private final double boundSize;
 
@@ -17,11 +11,12 @@ final class TrackingController extends AbstractController {
 
     private final Model tracked;
 
-    TrackingController(
-            Model model, double boundX, double boundY, double boundSize, Model tracked) {
+    private GameMap map;
+
+    TrackingController(double boundSize, Model model, GameMap map, Model tracked) {
         super(model);
         this.boundSize = boundSize;
-        this.rec = new Rectangle(0.0, 0.0, boundX, boundY);
+        this.map = map;
         this.tracked = tracked;
         this.center = Math.floor(boundSize / 2.0);
     }
@@ -47,10 +42,10 @@ final class TrackingController extends AbstractController {
                 break;
         }
 
-        if (rec.contains(x, y)
-                && rec.contains(x + boundSize - 1, y)
-                && rec.contains(x + boundSize - 1, y + boundSize - 1)
-                && rec.contains(x, y + boundSize - 1)) {
+        if (map.contains(x, y)
+                && map.contains(x + boundSize - 1, y)
+                && map.contains(x + boundSize - 1, y + boundSize - 1)
+                && map.contains(x, y + boundSize - 1)) {
             if (x + center == tracked.getX()) {
                 model.setX(x);
             }

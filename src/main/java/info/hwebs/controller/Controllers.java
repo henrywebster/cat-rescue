@@ -1,24 +1,28 @@
 package info.hwebs.controller;
 
+import info.hwebs.maps.GameMap;
+import info.hwebs.maps.Terrain;
 import info.hwebs.model.Model;
+import java.util.Set;
 
 public final class Controllers {
 
-    public static TrackingController trackingControllerOf(Model model, Model tracked, double boundX, double boundY, double boundSize) {
-        assert(null != model);
-        assert(null != tracked);
-        assert(boundX > 0.0);
-        assert(boundY > 0.0);
-        assert(boundSize > 0.0);
+    public static TrackingController trackingControllerOf(
+            double boundSize, Model model, Model tracked, GameMap map) {
+        assert (boundSize > 0.0);
+        assert (null != model);
+        assert (null != tracked);
+        assert (null != map);
 
-        return new TrackingController(model, boundX, boundY, boundSize, tracked);
+        return new TrackingController(boundSize, model, map, tracked);
     }
 
-    public static EntityController entityControllerOf(Model model, double boundX, double boundY) {
-        assert(null != model);
-        assert(boundX > 0.0);
-        assert(boundY > 0.0);
+    public static EntityController entityControllerOf(
+            Model model, GameMap map, Set<Terrain> allowed) {
+        assert (null != model);
+        assert (null != map);
+        assert (null != allowed);
 
-        return new EntityController(model, boundX, boundY);
+        return new EntityController(model, map, allowed);
     }
 }

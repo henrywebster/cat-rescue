@@ -1,16 +1,25 @@
 package info.hwebs.controller;
 
-import info.hwebs.model.Direction;
+import info.hwebs.event.EntityVisitor;
+import info.hwebs.maps.GameMap;
+import info.hwebs.maps.MapTile;
+import info.hwebs.maps.Terrain;
 import info.hwebs.model.Model;
-import javafx.scene.shape.Rectangle;
+import java.util.Set;
 
 final class EntityController extends AbstractController {
 
-    private final Rectangle rec;
+    private GameMap map;
 
-    EntityController(Model model, double boundX, double boundY) {
+    private final Set<Terrain> allowed;
+
+    private final EntityVisitor visitor;
+
+    EntityController(Model model, GameMap map, Set<Terrain> allowed) {
         super(model);
-        this.rec = new Rectangle(0.0, 0.0, boundX, boundY);
+        this.map = map;
+        this.allowed = allowed;
+        this.visitor = new EntityVisitor();
     }
 
     @Override
@@ -33,9 +42,14 @@ final class EntityController extends AbstractController {
                 y += 1.0;
                 break;
         }
-        if (rec.contains(x, y)) {
-            model.setX(x);
-            model.setY(y);
+
+        if (map.contains(x, y)) {
+            final MapTile tile = map.query((int) x, (int) y);
+            if (allowed.contains(tile.getTerrain())) {
+                model.setX(x);
+                model.setY(y);
+                tile.getVisitor().visit(visitor);
+            }
         }
     }
 }

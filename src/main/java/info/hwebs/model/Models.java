@@ -9,7 +9,8 @@ public final class Models {
 
     // TODO change window thing
     // TODO standardize param order
-    public static SpriteModel spriteModelOf(double x, double y, double size, Image image, Window window) {
+    public static SpriteModel spriteModelOf(
+            double x, double y, double size, Image image, Window window) {
         assert (size > 0.0);
         assert (null != image);
         assert (image.getHeight() > 0.0);
